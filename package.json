@@ -1,5 +1,5 @@
 {
-  "name": "xp.css",
+  "name": "@zeeshanz/xp.css",
   "version": "0.2.6",
   "description": "A design system for building faithful recreations of old UIs",
   "main": "dist/XP.css",
@@ -45,5 +45,7 @@
     "postcss-inline-svg": "^4.1.0",
     "postcss-nested": "^4.2.1"
   },
-  "dependencies": {}
+  "dependencies": {
+    "postcss-prefix-selector": "^1.16.1"
+  }
 }

@@ -10,30 +10,42 @@ const postcss = require("postcss");
 
 const { homepage, version } = require("./package.json");
 
-const postcssParser = postcss()
-  .use(require("postcss-import"))
-  .use(require("postcss-nested"))
-  .use(require("postcss-inline-svg"))
-  .use(require("postcss-css-variables"))
-  .use(require("postcss-calc"))
-  .use(require("postcss-copy")({ dest: "dist", template: "[name].[ext]" }))
-  .use(require("cssnano"));
+const plugins = [
+  require("postcss-import"),
+  require("postcss-nested"),
+  require("postcss-inline-svg"),
+  require("postcss-css-variables"),
+  require("postcss-calc"),
+  require("postcss-copy")({ dest: "dist", template: "[name].[ext]" }),
+  require("cssnano")
+]
+const postcssParser = postcss(plugins);
+
+
+const parserWithPrefix = postcss([
+  ...plugins,
+  require("postcss-prefix-selector")({
+    prefix: ".winXP",
+    transform: (prefix, selector, prefixed) =>
+      ["body", ".surface"].includes(selector) ? selector + prefix : prefixed,
+  }),
+]);
 
 function buildCSS() {
   const input =
     `/*! GUI.css v${version} - ${homepage} */\n` +
     fs.readFileSync("gui/index.scss");
 
-  return postcssParser
+  return parserWithPrefix
     .process(input, {
       from: "gui/index.scss",
-      to: "dist/GUI.css",
+      to: "dist/GUI.scoped.css",
       map: { inline: false },
     })
     .then((result) => {
       mkdirp.sync("dist");
-      fs.writeFileSync("dist/GUI.css", result.css);
-      fs.writeFileSync("dist/GUI.css.map", result.map.toString());
+      fs.writeFileSync("dist/GUI.scoped.css", result.css);
+      fs.writeFileSync("dist/GUI.scoped.css.map", result.map.toString());
     });
 }
 
